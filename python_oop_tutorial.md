@@ -2241,6 +2241,45 @@ plugin.cleanup()
 **Speaker Notes:**
 This is one of the most important design decisions in OOP. Inheritance creates tight coupling between parent and child; composition creates loose coupling between components. We'll explore real-world examples: a car has an engine (composition), but an electric car is a car (inheritance). Understanding when to use each leads to more maintainable, flexible designs.
 
+```mermaid
+flowchart TD
+    subgraph "Inheritance (Is-A)"
+        direction TB
+        Vehicle["Vehicle<br/>make, model<br/>drive(), brake()"]
+        Vehicle --> Car["Car<br/>num_doors<br/>honk()"]
+        Vehicle --> Truck["Truck<br/>cargo_capacity<br/>load_cargo()"]
+        Car --> ElectricCar["ElectricCar<br/>battery_capacity<br/>charge()"]
+    end
+    
+    subgraph "Composition (Has-A)"
+        direction TB
+        ComposedCar["ComposedCar<br/>make, model"]
+        Engine["Engine<br/>horsepower<br/>start(), stop()"]
+        Wheels["Wheels<br/>count, size<br/>rotate()"]
+        
+        ComposedCar --> Engine
+        ComposedCar --> Wheels
+        
+        Car2["Car"]
+        Engine2["Engine"]
+        Car2 -- "has-a" --> Engine2
+    end
+    
+    subgraph "Decision Flow"
+        direction LR
+        Start["Design Question"] --> Q1["Is it a specialized type?"]
+        Q1 -->|Yes| InheritancePath["Use Inheritance"]
+        Q1 -->|No| Q2["Does it contain/use another object?"]
+        Q2 -->|Yes| CompositionPath["Use Composition"]
+        Q2 -->|No| Reconsider["Reconsider design"]
+        
+        style InheritancePath fill:#e8f5e8
+        style CompositionPath fill:#e1f5fe
+    end
+```
+
+*Visualization: Inheritance creates "is-a" hierarchies (Vehicle → Car → ElectricCar). Composition creates "has-a" relationships (Car has Engine, Wheels). Decision flow helps choose the right approach.*
+
 ```python
 # Inheritance example: "is-a" relationship
 class Vehicle:
@@ -3997,6 +4036,65 @@ print("  • Write code for humans, not just computers")
 
 **Speaker Notes:**
 Let's put everything together! We'll design a realistic HR system that demonstrates professional OOP design. We'll start with basic requirements and evolve the design, explaining each decision. This example shows how OOP principles work in concert to create maintainable, extensible systems. Pay attention to the trade-offs and design rationale.
+
+```mermaid
+flowchart TD
+    HR["HRSystem<br/>(Facade Pattern)"]
+    
+    subgraph "Employee Hierarchy (Inheritance)"
+        direction TB
+        Employee["Employee<br/>(Abstract Base Class)"]
+        Employee --> FullTime["FullTimeEmployee<br/>base_salary, bonus"]
+        Employee --> Contractor["Contractor<br/>hourly_rate, hours_worked"]
+        FullTime --> Manager["Manager<br/>team, team_bonus"]
+    end
+    
+    subgraph "Department & Project (Composition)"
+        direction TB
+        Department["Department<br/>manager, employees"]
+        Project["Project<br/>budget, team, expenses"]
+        
+        Department -- "has-a" --> Manager
+        Department -- "has-many" --> Employee
+        Project -- "has-many" --> Employee
+    end
+    
+    subgraph "Services (SOLID Principles)"
+        direction LR
+        PayrollCalc["PayrollCalculator<br/>(Protocol)"]
+        ReportGen["ReportGenerator<br/>(Abstract Class)"]
+        
+        PayrollCalc --> BasicCalc["BasicPayrollCalculator"]
+        PayrollCalc --> TaxCalc["TaxAwarePayrollCalculator"]
+        
+        ReportGen --> JSONReport["JSONReportGenerator"]
+        ReportGen --> TextReport["TextReportGenerator"]
+    end
+    
+    subgraph "Value Objects"
+        Contact["ContactInfo<br/>(dataclass)<br/>email, phone, address"]
+        Identifiable["Identifiable<br/>(Interface)<br/>id property"]
+    end
+    
+    HR --> Employee
+    HR --> Department
+    HR --> Project
+    HR --> PayrollCalc
+    HR --> ReportGen
+    
+    Employee -- "implements" --> Identifiable
+    Department -- "implements" --> Identifiable
+    Employee -- "has-a" --> Contact
+    
+    style Employee fill:#e1f5fe
+    style Department fill:#e8f5e8
+    style Project fill:#f3e5f5
+    style HR fill:#fff3e0
+    style PayrollCalc fill:#ffebee
+    style ReportGen fill:#f3e5f5
+```
+
+*Visualization: Complete HR system architecture showing inheritance hierarchy (Employee types), composition relationships (Department has Employees, Projects), SOLID-based services, and value objects. The HRSystem acts as a facade coordinating all components.*
 
 ```python
 from abc import ABC, abstractmethod
