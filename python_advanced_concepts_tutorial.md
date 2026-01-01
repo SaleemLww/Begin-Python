@@ -983,7 +983,7 @@ flowchart TD
     style With fill:#e1f5fe
     style Enter fill:#e8f5e8
     style Block fill:#f3e5f5
-    style ExitNormal fill:#fff3e0---
+    style ExitNormal fill:#fff3e0
 ```
 
 ---
