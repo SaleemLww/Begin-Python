@@ -3565,3 +3565,733 @@ print("8. Would another developer understand this design quickly?")
 print("\n=== Remember ===")
 print("Good OOP design emerges from practice, reflection, and learning from mistakes.")
 print("Every developer makes these errors - the key is recognizing and fixing them.")
+
+---
+
+## Slide 19: Best Practices and Design Thinking
+
+- **Design before coding**: Think about relationships, responsibilities, and interfaces first
+- **Keep it simple**: Start with the simplest solution that works, refactor as needed
+- **Test-driven design**: Write tests first to clarify interface expectations
+- **Code to interfaces**: Design for flexibility by depending on abstractions
+- **Embrace Pythonicity**: Use Python's features (duck typing, properties, context managers)
+- **Document intent**: Use docstrings and type hints to communicate design decisions
+- **Refactor mercilessly**: Continuously improve design as understanding deepens
+- **Learn from others**: Study well-designed Python libraries (Django, requests, Flask)
+
+**Speaker Notes:**
+Good OOP isn't about following rules blindly—it's about thinking like a designer. We need to consider how objects collaborate, how changes will affect the system, and how to make code understandable. This slide synthesizes everything we've learned into practical guidelines for designing robust, maintainable object-oriented systems in Python.
+
+```python
+# 1. Design before coding: Think about relationships
+print("=== 1. Design Before Coding ===")
+print("Ask yourself:")
+print("  • What are the core entities (nouns)?")
+print("  • What are their responsibilities?")
+print("  • How do they relate (inheritance, composition, association)?")
+print("  • What messages do they send to each other?")
+
+# Example: Designing a library system
+print("\nLibrary System Design:")
+print("  Entities: Book, Member, Librarian, Loan, Shelf")
+print("  Relationships:")
+print("    • Member HAS-A list of Loans (composition)")
+print("    • Book IS-A Item (inheritance)")
+print("    • Librarian MANAGES Books (association)")
+print("    • Shelf CONTAINS Books (aggregation)")
+
+# 2. Keep it simple: YAGNI (You Ain't Gonna Need It)
+print("\n=== 2. Keep It Simple (YAGNI) ===")
+
+# Start simple
+class SimpleUser:
+    def __init__(self, username, email):
+        self.username = username
+        self.email = email
+    
+    def get_info(self):
+        return f"{self.username} ({self.email})"
+
+# Only add complexity when needed
+class UserWithValidation(SimpleUser):
+    def __init__(self, username, email):
+        if not self._validate_email(email):
+            raise ValueError("Invalid email")
+        if not self._validate_username(username):
+            raise ValueError("Invalid username")
+        super().__init__(username, email)
+    
+    @staticmethod
+    def _validate_email(email):
+        return "@" in email
+    
+    @staticmethod
+    def _validate_username(username):
+        return len(username) >= 3
+
+print("Start with SimpleUser, evolve to UserWithValidation only when validation is needed")
+
+# 3. Test-driven design
+print("\n=== 3. Test-Driven Design ===")
+print("Write tests first to clarify interface expectations:")
+
+# Imagine writing tests first:
+"""
+def test_user_creation():
+    user = User("alice", "alice@example.com")
+    assert user.username == "alice"
+    assert user.email == "alice@example.com"
+
+def test_user_invalid_email():
+    with pytest.raises(ValueError):
+        User("bob", "invalid-email")
+"""
+
+print("Tests force you to think about:")
+print("  • What parameters are required?")
+print("  • What validation is needed?")
+print("  • What methods should exist?")
+print("  • What should happen in error cases?")
+
+# 4. Code to interfaces, not implementations
+from abc import ABC, abstractmethod
+from typing import Protocol
+
+print("\n=== 4. Code to Interfaces ===")
+
+class NotificationSender(Protocol):
+    """Protocol defining notification interface"""
+    def send(self, message: str, recipient: str) -> bool:
+        ...
+
+class EmailSender:
+    def send(self, message: str, recipient: str) -> bool:
+        print(f"Sending email to {recipient}: {message}")
+        return True
+
+class SMSSender:
+    def send(self, message: str, recipient: str) -> bool:
+        print(f"Sending SMS to {recipient}: {message}")
+        return True
+
+class NotificationService:
+    def __init__(self, sender: NotificationSender):
+        self.sender = sender
+    
+    def notify_user(self, user_id: str, message: str):
+        # Doesn't care about implementation, just interface
+        return self.sender.send(message, user_id)
+
+print("NotificationService works with ANY sender implementing the Protocol")
+print("Easy to swap EmailSender for SMSSender or MockSender for testing")
+
+# 5. Embrace Pythonicity
+print("\n=== 5. Embrace Pythonicity ===")
+
+# Pythonic vs Non-Pythonic comparison
+class NonPythonicData:
+    def __init__(self, values):
+        self._values = values
+    
+    def get_values(self):
+        return self._values
+    
+    def set_value(self, index, value):
+        self._values[index] = value
+    
+    def get_length(self):
+        return len(self._values)
+
+class PythonicData:
+    def __init__(self, values):
+        self._values = list(values)
+    
+    @property
+    def values(self):
+        return self._values.copy()  # Return copy to protect internal state
+    
+    def __getitem__(self, index):
+        return self._values[index]
+    
+    def __setitem__(self, index, value):
+        self._values[index] = value
+    
+    def __len__(self):
+        return len(self._values)
+    
+    def __iter__(self):
+        return iter(self._values)
+    
+    def __contains__(self, item):
+        return item in self._values
+
+print("Pythonic code uses:")
+print("  • Properties instead of getters/setters")
+print("  • Dunder methods for intuitive behavior")
+print("  • Context managers for resource handling")
+print("  • Generators and iterators for lazy evaluation")
+
+# 6. Document intent
+print("\n=== 6. Document Intent ===")
+
+class DocumentedClass:
+    """
+    A class that demonstrates good documentation practices.
+    
+    This class manages user sessions with timeout functionality.
+    It follows the Singleton pattern to ensure only one session manager exists.
+    
+    Attributes:
+        timeout_seconds: How long before session expires (in seconds)
+        active_sessions: Dictionary of session_id -> user_data
+    
+    Example:
+        >>> manager = DocumentedClass.get_instance()
+        >>> session_id = manager.create_session(user_id="alice")
+        >>> user = manager.get_user(session_id)
+    """
+    
+    _instance = None
+    
+    def __init__(self, timeout_seconds=3600):
+        """Initialize session manager with timeout.
+        
+        Args:
+            timeout_seconds: Session timeout in seconds (default: 1 hour)
+        
+        Raises:
+            ValueError: If timeout_seconds is not positive
+        """
+        if timeout_seconds <= 0:
+            raise ValueError("Timeout must be positive")
+        self.timeout_seconds = timeout_seconds
+        self.active_sessions = {}
+    
+    @classmethod
+    def get_instance(cls):
+        """Get singleton instance of session manager."""
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance
+    
+    def create_session(self, user_id: str) -> str:
+        """Create a new session for user.
+        
+        Args:
+            user_id: Unique identifier for user
+        
+        Returns:
+            Session ID string
+        
+        Raises:
+            RuntimeError: If user already has active session
+        """
+        # Implementation here
+        return "session_id"
+
+print("Good documentation includes:")
+print("  • Class-level docstring explaining purpose and patterns")
+print("  • Method docstrings with Args, Returns, Raises")
+print("  • Type hints for clarity")
+print("  • Examples showing usage")
+
+# 7. Refactor mercilessly
+print("\n=== 7. Refactor Mercilessly ===")
+
+# Before refactoring
+class OrderProcessorOld:
+    def process_order(self, order_data):
+        # 50 lines of mixed responsibilities
+        self.validate_order(order_data)
+        self.calculate_totals(order_data)
+        self.check_inventory(order_data)
+        self.charge_customer(order_data)
+        self.update_inventory(order_data)
+        self.send_confirmation(order_data)
+        self.log_transaction(order_data)
+        return "Order processed"
+
+# After refactoring
+class OrderValidator:
+    def validate(self, order_data): ...
+
+class PaymentProcessor:
+    def charge(self, order_data): ...
+
+class InventoryManager:
+    def update(self, order_data): ...
+
+class NotificationService:
+    def send_confirmation(self, order_data): ...
+
+class OrderProcessorNew:
+    def __init__(self, validator, payment, inventory, notifier):
+        self.validator = validator
+        self.payment = payment
+        self.inventory = inventory
+        self.notifier = notifier
+    
+    def process_order(self, order_data):
+        self.validator.validate(order_data)
+        self.payment.charge(order_data)
+        self.inventory.update(order_data)
+        self.notifier.send_confirmation(order_data)
+        return "Order processed"
+
+print("Refactoring improves:")
+print("  • Single Responsibility (each class does one thing)")
+print("  • Testability (components can be tested independently)")
+print("  • Flexibility (easy to swap implementations)")
+print("  • Maintainability (changes are isolated)")
+
+# 8. Learn from others
+print("\n=== 8. Learn From Others ===")
+print("Study well-designed Python projects:")
+
+print("\nDjango (Web Framework):")
+print("  • Model-View-Template pattern")
+print("  • ORM with querysets (lazy evaluation)")
+print("  • Middleware for cross-cutting concerns")
+print("  • Class-based views with mixins")
+
+print("\nRequests (HTTP Library):")
+print("  • Simple, intuitive API")
+print("  • Session objects for connection pooling")
+print("  • Response objects with convenient methods")
+print("  • Clean separation of transport and logic")
+
+print("\nSQLAlchemy (ORM):")
+print("  • Dual API (Core and ORM)")
+print("  • Declarative base classes")
+print("  • Lazy loading relationships")
+print("  • Unit of Work pattern")
+
+# Design thinking process
+print("\n=== Design Thinking Process ===")
+print("1. Understand the problem domain")
+print("2. Identify key entities and their relationships")
+print("3. Define responsibilities for each entity")
+print("4. Design interfaces (what messages are sent)")
+print("5. Implement simplest solution")
+print("6. Test and get feedback")
+print("7. Refactor based on learnings")
+print("8. Repeat as understanding deepens")
+
+# Practical checklist for code reviews
+print("\n=== OOP Code Review Checklist ===")
+print("✓ Does each class have a single, clear responsibility?")
+print("✓ Are inheritance hierarchies shallow and meaningful?")
+print("✓ Is composition used where appropriate?")
+print("✓ Are interfaces well-defined and documented?")
+print("✓ Does the code follow Python conventions?")
+print("✓ Are there appropriate abstractions?")
+print("✓ Is the code testable?")
+print("✓ Would another developer understand it quickly?")
+
+# The Zen of Python applied to OOP
+print("\n=== Zen of Python for OOP ===")
+print("Beautiful is better than ugly.")
+print("Simple is better than complex.")
+print("Complex is better than complicated.")
+print("Flat is better than nested.")
+print("Sparse is better than dense.")
+print("Readability counts.")
+print("If the implementation is hard to explain, it's a bad idea.")
+
+print("\n=== Final Thought ===")
+print("Object-oriented design is a skill developed over time.")
+print("The best designers are those who:")
+print("  • Think deeply about problems before coding")
+print("  • Continuously refactor as understanding improves")
+print("  • Learn from both successes and failures")
+print("  • Balance principles with practical constraints")
+print("  • Write code for humans, not just computers")
+
+---
+
+## Slide 20: Real-World Modeling Example (Employee / System)
+
+- **Comprehensive example**: Modeling a corporate HR system with employees, departments, and projects
+- **Applied concepts**: Inheritance, composition, polymorphism, encapsulation, SOLID principles
+- **Design decisions**: When to use abstract classes vs interfaces, composition vs inheritance
+- **Real-world constraints**: Performance, extensibility, maintainability
+- **Testing considerations**: Mocking dependencies, unit testing OOP systems
+- **Evolution path**: How the design would evolve as requirements change
+
+**Speaker Notes:**
+Let's put everything together! We'll design a realistic HR system that demonstrates professional OOP design. We'll start with basic requirements and evolve the design, explaining each decision. This example shows how OOP principles work in concert to create maintainable, extensible systems. Pay attention to the trade-offs and design rationale.
+
+```python
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from datetime import date
+from typing import List, Optional, Protocol
+import json
+
+# ========== Core Domain Models ==========
+
+@dataclass
+class ContactInfo:
+    """Value object - immutable data container"""
+    email: str
+    phone: str
+    address: str
+
+class Identifiable(ABC):
+    """Interface for entities with ID"""
+    @property
+    @abstractmethod
+    def id(self) -> str:
+        pass
+
+# ========== Employee Hierarchy ==========
+
+class Employee(Identifiable, ABC):
+    """Abstract base class for all employees"""
+    
+    def __init__(self, employee_id: str, name: str, contact: ContactInfo,
+                 hire_date: date, base_salary: float):
+        self._employee_id = employee_id
+        self._name = name
+        self._contact = contact  # Composition
+        self._hire_date = hire_date
+        self._base_salary = base_salary
+        self._projects: List[Project] = []
+    
+    @property
+    def id(self) -> str:
+        return self._employee_id
+    
+    @property
+    def name(self) -> str:
+        return self._name
+    
+    @property
+    def contact(self) -> ContactInfo:
+        return self._contact
+    
+    @abstractmethod
+    def calculate_salary(self) -> float:
+        """Template method - subclasses must implement"""
+        pass
+    
+    def years_of_service(self) -> int:
+        today = date.today()
+        return today.year - self._hire_date.year
+    
+    def assign_project(self, project: 'Project'):
+        self._projects.append(project)
+    
+    def get_projects(self) -> List['Project']:
+        return self._projects.copy()  # Return copy for encapsulation
+    
+    def __str__(self) -> str:
+        return f"{self.__class__.__name__}: {self._name} (ID: {self._employee_id})"
+
+class FullTimeEmployee(Employee):
+    """Concrete employee type with benefits"""
+    
+    def __init__(self, employee_id: str, name: str, contact: ContactInfo,
+                 hire_date: date, base_salary: float, bonus_percentage: float = 0.1):
+        super().__init__(employee_id, name, contact, hire_date, base_salary)
+        self._bonus_percentage = bonus_percentage
+    
+    def calculate_salary(self) -> float:
+        # Base salary + years of service bonus + performance bonus
+        service_bonus = self.years_of_service() * 1000
+        performance_bonus = self._base_salary * self._bonus_percentage
+        return self._base_salary + service_bonus + performance_bonus
+    
+    def take_vacation(self, days: int) -> str:
+        return f"{self._name} is taking {days} days of vacation"
+
+class Contractor(Employee):
+    """Contractor with hourly rate"""
+    
+    def __init__(self, employee_id: str, name: str, contact: ContactInfo,
+                 hire_date: date, hourly_rate: float, hours_worked: float = 0):
+        # Contractors don't have base salary, use 0
+        super().__init__(employee_id, name, contact, hire_date, 0)
+        self._hourly_rate = hourly_rate
+        self._hours_worked = hours_worked
+    
+    def calculate_salary(self) -> float:
+        return self._hourly_rate * self._hours_worked
+    
+    def log_hours(self, hours: float):
+        self._hours_worked += hours
+    
+    def reset_hours(self):
+        self._hours_worked = 0
+
+class Manager(FullTimeEmployee):
+    """Manager with team responsibility"""
+    
+    def __init__(self, employee_id: str, name: str, contact: ContactInfo,
+                 hire_date: date, base_salary: float,
+                 team: Optional[List[Employee]] = None):
+        super().__init__(employee_id, name, contact, hire_date, base_salary, 0.15)
+        self._team = team if team else []
+    
+    def add_team_member(self, employee: Employee):
+        self._team.append(employee)
+    
+    def get_team_size(self) -> int:
+        return len(self._team)
+    
+    def calculate_salary(self) -> float:
+        # Manager salary = base calculation + team size bonus
+        base_salary = super().calculate_salary()
+        team_bonus = len(self._team) * 500
+        return base_salary + team_bonus
+
+# ========== Department and Project ==========
+
+class Department(Identifiable):
+    """Department containing employees"""
+    
+    def __init__(self, dept_id: str, name: str, manager: Manager):
+        self._dept_id = dept_id
+        self._name = name
+        self._manager = manager  # Association
+        self._employees: List[Employee] = [manager]
+    
+    @property
+    def id(self) -> str:
+        return self._dept_id
+    
+    def add_employee(self, employee: Employee):
+        self._employees.append(employee)
+    
+    def calculate_payroll(self) -> float:
+        return sum(emp.calculate_salary() for emp in self._employees)
+    
+    def get_employee_count(self) -> int:
+        return len(self._employees)
+    
+    def __str__(self) -> str:
+        return f"Department: {self._name} (Manager: {self._manager.name})"
+
+class Project:
+    """Project that employees work on"""
+    
+    def __init__(self, project_id: str, name: str, budget: float):
+        self._project_id = project_id
+        self._name = name
+        self._budget = budget
+        self._team: List[Employee] = []
+        self._expenses: float = 0
+    
+    def assign_employee(self, employee: Employee):
+        self._team.append(employee)
+        employee.assign_project(self)
+    
+    def add_expense(self, amount: float):
+        self._expenses += amount
+    
+    def remaining_budget(self) -> float:
+        return self._budget - self._expenses
+    
+    def is_over_budget(self) -> bool:
+        return self.remaining_budget() < 0
+
+# ========== Services (SOLID Principles) ==========
+
+class PayrollCalculator(Protocol):
+    """Interface for payroll calculation (Dependency Inversion)"""
+    def calculate(self, employees: List[Employee]) -> float:
+        ...
+
+class BasicPayrollCalculator:
+    """Basic payroll calculation"""
+    def calculate(self, employees: List[Employee]) -> float:
+        return sum(emp.calculate_salary() for emp in employees)
+
+class TaxAwarePayrollCalculator:
+    """Payroll calculator with tax deduction"""
+    def __init__(self, tax_rate: float = 0.2):
+        self.tax_rate = tax_rate
+    
+    def calculate(self, employees: List[Employee]) -> float:
+        total = sum(emp.calculate_salary() for emp in employees)
+        return total * (1 - self.tax_rate)
+
+class ReportGenerator(ABC):
+    """Abstract report generator (Open/Closed Principle)"""
+    @abstractmethod
+    def generate(self, data: any) -> str:
+        pass
+
+class JSONReportGenerator(ReportGenerator):
+    def generate(self, data: any) -> str:
+        return json.dumps(data, indent=2, default=str)
+
+class TextReportGenerator(ReportGenerator):
+    def generate(self, data: any) -> str:
+        if isinstance(data, Department):
+            return f"Department Report: {data._name}, Employees: {data.get_employee_count()}"
+        return str(data)
+
+# ========== HR System (Facade) ==========
+
+class HRSystem:
+    """Main system coordinating all components (Facade Pattern)"""
+    
+    def __init__(self):
+        self._departments: List[Department] = []
+        self._projects: List[Project] = []
+        self._payroll_calculator: PayrollCalculator = BasicPayrollCalculator()
+        self._report_generator: ReportGenerator = JSONReportGenerator()
+    
+    def set_payroll_calculator(self, calculator: PayrollCalculator):
+        self._payroll_calculator = calculator
+    
+    def set_report_generator(self, generator: ReportGenerator):
+        self._report_generator = generator
+    
+    def add_department(self, department: Department):
+        self._departments.append(department)
+    
+    def add_project(self, project: Project):
+        self._projects.append(project)
+    
+    def calculate_company_payroll(self) -> float:
+        all_employees = []
+        for dept in self._departments:
+            # In real system, we'd get employees from department
+            pass  # Simplified
+        return self._payroll_calculator.calculate(all_employees)
+    
+    def generate_department_report(self, department: Department) -> str:
+        return self._report_generator.generate(department)
+    
+    def find_employee(self, employee_id: str) -> Optional[Employee]:
+        for dept in self._departments:
+            # Simplified search
+            pass
+        return None
+
+# ========== Usage Example ==========
+
+print("=== Real-World HR System Example ===")
+
+# Create employees
+alice_contact = ContactInfo("alice@company.com", "555-0101", "123 Main St")
+alice = Manager("EMP001", "Alice Smith", alice_contact, date(2020, 1, 15), 80000)
+
+bob_contact = ContactInfo("bob@company.com", "555-0102", "456 Oak St")
+bob = FullTimeEmployee("EMP002", "Bob Johnson", bob_contact, date(2021, 3, 20), 60000)
+
+charlie_contact = ContactInfo("charlie@contractor.com", "555-0103", "789 Pine St")
+charlie = Contractor("CONT001", "Charlie Brown", charlie_contact, date(2022, 6, 1), 75)
+charlie.log_hours(160)  # Log a month's work
+
+# Create department
+engineering = Department("DEPT001", "Engineering", alice)
+engineering.add_employee(bob)
+engineering.add_employee(charlie)
+
+# Create project
+website_redesign = Project("PROJ001", "Website Redesign", 50000)
+website_redesign.assign_employee(bob)
+website_redesign.assign_employee(charlie)
+website_redesign.add_expense(15000)
+
+# Create HR system
+hr_system = HRSystem()
+hr_system.add_department(engineering)
+hr_system.add_project(website_redesign)
+
+# Demonstrate polymorphism
+employees: List[Employee] = [alice, bob, charlie]
+print("\n=== Employee Salaries (Polymorphism) ===")
+for emp in employees:
+    salary = emp.calculate_salary()
+    print(f"{emp.name}: ${salary:,.2f} ({emp.__class__.__name__})")
+
+# Department payroll
+print(f"\n=== Department Payroll ===")
+print(f"{engineering._name} payroll: ${engineering.calculate_payroll():,.2f}")
+
+# Project status
+print(f"\n=== Project Status ===")
+print(f"{website_redesign._name}:")
+print(f"  Budget: ${website_redesign._budget:,.2f}")
+print(f"  Expenses: ${website_redesign._expenses:,.2f}")
+print(f"  Remaining: ${website_redesign.remaining_budget():,.2f}")
+print(f"  Over budget: {website_redesign.is_over_budget()}")
+
+# Report generation
+print(f"\n=== Report Generation ===")
+hr_system.set_report_generator(JSONReportGenerator())
+report = hr_system.generate_department_report(engineering)
+print(f"JSON Report (first 200 chars): {report[:200]}...")
+
+hr_system.set_report_generator(TextReportGenerator())
+report = hr_system.generate_department_report(engineering)
+print(f"Text Report: {report}")
+
+# Demonstrate SOLID principles
+print(f"\n=== SOLID Principles in Action ===")
+print("1. Single Responsibility:")
+print("   • Employee handles employee data")
+print("   • Department handles department logic")
+print("   • Project handles project management")
+print("   • Services handle cross-cutting concerns")
+
+print("\n2. Open/Closed:")
+print("   • ReportGenerator can be extended (JSON, Text, HTML)")
+print("   • PayrollCalculator can be extended (Basic, TaxAware)")
+
+print("\n3. Liskov Substitution:")
+print("   • All Employees can be used interchangeably")
+print("   • Manager can substitute FullTimeEmployee")
+
+print("\n4. Interface Segregation:")
+print("   • Identifiable interface for ID")
+print("   • PayrollCalculator protocol for payroll")
+
+print("\n5. Dependency Inversion:")
+print("   • HRSystem depends on PayrollCalculator abstraction")
+print("   • Not on concrete implementations")
+
+# Design evolution discussion
+print(f"\n=== How This Design Would Evolve ===")
+print("Phase 1: Add persistence (DatabaseRepository)")
+print("Phase 2: Add authentication (AuthService)")
+print("Phase 3: Add notifications (NotificationService)")
+print("Phase 4: Add analytics (AnalyticsEngine)")
+print("Phase 5: Add API layer (REST API)")
+
+print(f"\n=== Key Design Decisions ===")
+print("1. Used ABC for Employee to enforce calculate_salary()")
+print("2. Used composition for ContactInfo (Employee HAS-A ContactInfo)")
+print("3. Used Protocol for PayrollCalculator (structural typing)")
+print("4. Used Facade pattern for HRSystem (simplifies complex system)")
+print("5. Used @dataclass for ContactInfo (simple data container)")
+
+print(f"\n=== Testing Strategy ===")
+print("1. Unit test each class in isolation")
+print("2. Mock dependencies (PayrollCalculator, ReportGenerator)")
+print("3. Test polymorphism with different Employee subtypes")
+print("4. Integration test HRSystem with real components")
+print("5. Property-based testing for salary calculations")
+
+print(f"\n=== Production Considerations ===")
+print("• Add error handling and logging")
+print("• Add caching for frequently accessed data")
+print("• Add validation for all inputs")
+print("• Implement proper serialization/deserialization")
+print("• Add monitoring and metrics")
+
+print(f"\n=== Congratulations! ===")
+print("You've designed a professional OOP system that:")
+print("• Models real-world relationships accurately")
+print("• Follows SOLID principles")
+print("• Is extensible and maintainable")
+print("• Demonstrates Pythonic OOP design")
+print("• Can evolve with changing requirements")
+
+print(f"\nThis example synthesizes all 20 slides of OOP concepts!")
+print("From basic classes to advanced design patterns.")
+print("Remember: Good design emerges from practice and reflection.")
