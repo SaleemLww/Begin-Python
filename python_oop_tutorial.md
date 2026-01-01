@@ -52,7 +52,7 @@ rect.draw()
 - Creating an object is called **instantiation**
 
 **Speaker Notes:**
-Let's visualize this. Imagine you're a toy manufacturer. The **class** is the mold you design—it specifies the shape, color slots, and features. The **objects** are the actual toys produced from that mold, each with its own unique paint color, serial number, and position on the shelf. In code, the class defines the structure, and each object gets its own memory space for its data. We'll draw this relationship: one class above, multiple objects below, each with their own attribute values.
+Let's visualize this. Imagine you're a toy manufacturer. The **class** is the mold you design—it specifies the shape, color slots, and features. The **objects** are the actual toys produced from that mold, each with its own unique paint color, serial number, and position on the shelf. In code, the class defines the structure, and each object gets its own memory space for its data. Look at the Mermaid diagram below—it shows a Dog class blueprint creating multiple objects (dog1, dog2) with their own instance data but sharing a class variable. This visual representation helps cement the mental model of classes as templates and objects as instances.
 
 ```mermaid
 flowchart TD
@@ -518,7 +518,7 @@ temp = Temperature(25)
 print(f"25°C = {temp.fahrenheit}°F")
 temp.fahrenheit = 77
 print(f"77°F = {temp.celsius}°C")
-
+```
 ---
 
 ## Slide 8: Name Mangling and Access Conventions
@@ -627,7 +627,7 @@ print("2. Use _prefix for 'protected' (internal implementation)")
 print("3. Use __prefix sparingly, mainly to avoid name clashes in inheritance")
 print("4. Never use __suffix__ for your own attributes")
 print("5. Use properties (@property) for controlled access to sensitive data")
-
+```
 ---
 
 ## Slide 9: Inheritance (Single, Multiple)
@@ -640,7 +640,7 @@ print("5. Use properties (@property) for controlled access to sensitive data")
 - **DRY principle**: Don't Repeat Yourself – reuse code through inheritance
 
 **Speaker Notes:**
-Inheritance is about specialization. Think of it as a family tree: a `Car` is a `Vehicle`, an `ElectricCar` is a `Car`. Each child class adds or modifies behavior. Single inheritance is straightforward. Multiple inheritance is powerful but tricky—Python's MRO (C3 linearization) solves the "diamond problem." We'll visualize inheritance hierarchies and explore when inheritance is appropriate vs. when composition is better.
+Inheritance is about specialization. Think of it as a family tree: a `Car` is a `Vehicle`, an `ElectricCar` is a `Car`. Each child class adds or modifies behavior. Single inheritance is straightforward. Multiple inheritance is powerful but tricky—Python's MRO (C3 linearization) solves the "diamond problem." Look at the Mermaid diagram below—it visualizes single inheritance (Vehicle → Car → ElectricCar), multiple inheritance (Camera + Phone → SmartPhone), and diamond inheritance (A → B, C → D). These diagrams help you see the relationships and understand how method resolution works in complex hierarchies.
 
 ```mermaid
 flowchart TD
@@ -802,7 +802,7 @@ print("2. Avoid inheritance for 'has-a' relationships (Car HAS-A Engine → use 
 print("3. Keep inheritance hierarchies shallow (2-3 levels max)")
 print("4. Prefer composition over inheritance for code reuse")
 print("5. Use multiple inheritance cautiously, with clear interfaces")
-
+```
 ---
 
 ## Slide 10: super() Explained Step-by-Step
@@ -815,7 +815,7 @@ print("5. Use multiple inheritance cautiously, with clear interfaces")
 - **Cooperative design**: Enables mixins and flexible class hierarchies
 
 **Speaker Notes:**
-`super()` is often misunderstood. It's not just "call the parent method"—it's "call the next method in the MRO chain." This distinction matters in multiple inheritance. We'll trace through examples to see how `super()` enables cooperative design patterns where multiple parents contribute to a method. Understanding `super()` is key to writing maintainable inheritance hierarchies.
+`super()` is often misunderstood. It's not just "call the parent method"—it's "call the next method in the MRO chain." This distinction matters in multiple inheritance. Look at the Mermaid diagram below—it shows how `super()` follows the Method Resolution Order chain. In diamond inheritance (Bottom → Left → Right → Base), each `super()` calls the next class. In cooperative design (C → A → B), A's `super()` calls B. We'll trace through examples to see how `super()` enables cooperative design patterns where multiple parents contribute to a method. Understanding `super()` is key to writing maintainable inheritance hierarchies.
 
 ```mermaid
 flowchart TD
@@ -1034,7 +1034,7 @@ print("2. Use super() for method overriding to maintain chain")
 print("3. In multiple inheritance, design classes cooperatively")
 print("4. Understand MRO to predict super() behavior")
 print("5. Use super().__init__(*args, **kwargs) to forward arguments")
-
+```
 ---
 
 ## Slide 11: Method Overriding
@@ -1268,7 +1268,7 @@ print(f"Rectangle area: {rect.area()}")
 square = Square(5)
 # square.set_dimensions(3, 7)  # Raises ValueError - violates LSP
 print("Square violates LSP: can't substitute for Rectangle in all cases")
-
+```
 ---
 
 ## Slide 12: Polymorphism (Runtime Behavior)
@@ -1512,7 +1512,7 @@ print("\n=== Protocol-Based Polymorphism ===")
 print(make_quack(Duck()))   # Works
 print(make_quack(Person())) # Works
 print(make_quack(Robot()))  # Works
-
+```
 ---
 
 ## Slide 13: Abstraction Using abc Module
@@ -1862,7 +1862,7 @@ for value, expected in test_cases:
         elif isinstance(value, int) and isinstance(validator, RangeValidator):
             result = validator.validate(value)
             print(f"{validator.__class__.__name__}({value}): {result}")
-
+```
 ---
 
 ## Slide 14: Abstract Base Classes and Interfaces
@@ -2226,7 +2226,7 @@ plugin.initialize({"threshold": 0.7})
 result = plugin.execute("test data")
 print(f"Result: {result}")
 plugin.cleanup()
-
+```
 ---
 
 ## Slide 15: Composition vs Inheritance (Real-World Modeling)
@@ -2630,7 +2630,7 @@ print("\n=== Key Takeaway ===")
 print("Composition gives you flexibility; inheritance gives you structure.")
 print("The best designs often use both: inheritance for type hierarchies,")
 print("composition for behavior and implementation details.")
-
+```
 ---
 
 ## Slide 16: Magic/Dunder Methods (__init__, __str__, etc.)
@@ -2953,7 +2953,7 @@ print("4. Follow Python's conventions (e.g., __len__ returns int >= 0)")
 print("5. Use __slots__ for memory optimization in classes with many instances")
 print("6. Be careful with __getattr__ and __setattr__ - they affect all attribute access")
 print("7. Test dunder methods thoroughly - they're called implicitly by Python")
-
+```
 ---
 
 ## Slide 17: SOLID Principles in Python
@@ -3329,7 +3329,7 @@ def simple_data_processor(data):
 print("\n=== Simple Case (No SOLID Needed) ===")
 data = ["apple", "banana", "cherry"]
 print(simple_data_processor(data))
-
+```
 ---
 
 ## Slide 18: Common OOP Mistakes
@@ -3681,7 +3681,7 @@ print("8. Would another developer understand this design quickly?")
 print("\n=== Remember ===")
 print("Good OOP design emerges from practice, reflection, and learning from mistakes.")
 print("Every developer makes these errors - the key is recognizing and fixing them.")
-
+```
 ---
 
 ## Slide 19: Best Practices and Design Thinking
@@ -4022,7 +4022,7 @@ print("  • Continuously refactor as understanding improves")
 print("  • Learn from both successes and failures")
 print("  • Balance principles with practical constraints")
 print("  • Write code for humans, not just computers")
-
+```
 ---
 
 ## Slide 20: Real-World Modeling Example (Employee / System)
