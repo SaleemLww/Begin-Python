@@ -54,6 +54,21 @@ rect.draw()
 **Speaker Notes:**
 Let's visualize this. Imagine you're a toy manufacturer. The **class** is the mold you design—it specifies the shape, color slots, and features. The **objects** are the actual toys produced from that mold, each with its own unique paint color, serial number, and position on the shelf. In code, the class defines the structure, and each object gets its own memory space for its data. We'll draw this relationship: one class above, multiple objects below, each with their own attribute values.
 
+```mermaid
+flowchart TD
+    Class["Dog Class<br/>species = 'Canis familiaris'<br/>__init__(self, name, age)<br/>bark(self)"]
+    
+    Class --> Object1["dog1 Object<br/>name = 'Buddy'<br/>age = 3"]
+    Class --> Object2["dog2 Object<br/>name = 'Max'<br/>age = 5"]
+    
+    Object1 --> Methods1["Methods:<br/>bark() → 'Buddy says woof!'"]
+    Object2 --> Methods2["Methods:<br/>bark() → 'Max says woof!'"]
+    
+    Class --> Shared["Shared Class Variable:<br/>species = 'Canis familiaris'"]
+```
+
+*Visualization: The Dog class blueprint creates multiple objects (dog1, dog2) with their own instance data but shared class variable.*
+
 ```python
 # Class definition (the blueprint)
 class Dog:
@@ -627,6 +642,36 @@ print("5. Use properties (@property) for controlled access to sensitive data")
 **Speaker Notes:**
 Inheritance is about specialization. Think of it as a family tree: a `Car` is a `Vehicle`, an `ElectricCar` is a `Car`. Each child class adds or modifies behavior. Single inheritance is straightforward. Multiple inheritance is powerful but tricky—Python's MRO (C3 linearization) solves the "diamond problem." We'll visualize inheritance hierarchies and explore when inheritance is appropriate vs. when composition is better.
 
+```mermaid
+flowchart TD
+    Vehicle["Vehicle<br/>make, model, year<br/>drive(), get_info()"]
+    
+    Vehicle --> Car["Car<br/>num_doors<br/>honk()"]
+    Car --> ElectricCar["ElectricCar<br/>battery_capacity, _charge<br/>drive(), charge()"]
+    
+    Camera["Camera<br/>resolution<br/>take_photo()"]
+    Phone["Phone<br/>number<br/>call()"]
+    
+    Camera --> SmartPhone["SmartPhone<br/>os<br/>browse_internet()"]
+    Phone --> SmartPhone
+    
+    A["A<br/>method() → 'A'"]
+    B["B<br/>method() → 'B'"]
+    C["C<br/>method() → 'C'"]
+    
+    A --> B
+    A --> C
+    B --> D["D<br/>(inherits from B, C)"]
+    C --> D
+    
+    style Vehicle fill:#e1f5fe
+    style Car fill:#e8f5e8
+    style ElectricCar fill:#f3e5f5
+    style SmartPhone fill:#fff3e0
+```
+
+*Visualization: Single inheritance (Vehicle → Car → ElectricCar), multiple inheritance (Camera + Phone → SmartPhone), and diamond inheritance (A → B, C → D).*
+
 ```python
 # Single inheritance example
 class Vehicle:
@@ -771,6 +816,38 @@ print("5. Use multiple inheritance cautiously, with clear interfaces")
 
 **Speaker Notes:**
 `super()` is often misunderstood. It's not just "call the parent method"—it's "call the next method in the MRO chain." This distinction matters in multiple inheritance. We'll trace through examples to see how `super()` enables cooperative design patterns where multiple parents contribute to a method. Understanding `super()` is key to writing maintainable inheritance hierarchies.
+
+```mermaid
+flowchart TD
+    Bottom["Bottom<br/>__init__()<br/>super().__init__()"]
+    Left["Left<br/>__init__()<br/>super().__init__()"]
+    Right["Right<br/>__init__()<br/>super().__init__()"]
+    Base["Base<br/>__init__()"]
+    
+    Bottom --> Left
+    Left --> Right
+    Right --> Base
+    
+    C["C<br/>method()<br/>super().method()"]
+    A["A<br/>method()<br/>super().method()"]
+    B["B<br/>method()"]
+    
+    C --> A
+    A --> B
+    
+    style Bottom fill:#e1f5fe
+    style Left fill:#e8f5e8
+    style Right fill:#f3e5f5
+    style Base fill:#fff3e0
+    
+    subgraph "Method Resolution Order (MRO)"
+        direction LR
+        MRO1["C → A → B → object"]
+        MRO2["Bottom → Left → Right → Base → object"]
+    end
+```
+
+*Visualization: super() follows MRO chain. In diamond inheritance (Bottom → Left → Right → Base), each super() calls next class. In cooperative design (C → A → B), A's super() calls B.*
 
 ```python
 # Basic super() usage
