@@ -3628,3 +3628,5 @@ flowchart TD
     style Expert fill:#e1f5fe
     style Success fill:#4caf50,stroke:#388e3c,stroke-width:2px,color:white
 ```
+
+*End of Part 4 – Advanced Python Concepts & Internals*
